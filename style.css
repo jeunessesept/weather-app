@@ -17,4 +17,8 @@ body{
     width: 100%;
     max-width: 420px;
     margin: 1em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
   }
