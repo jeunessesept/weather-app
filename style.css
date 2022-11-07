@@ -62,8 +62,9 @@ main{
 
 #chart{
     margin-top: 15px;
-    max-width: 800px;
+    max-width: 1000px;
     max-height: 400px;
-    background: rgba(255, 252, 252, 0.64);
+    border-radius: 40px;
+    background: rgba(255, 252, 252, 0.736);
 }
 

@@ -5,7 +5,9 @@ grafCanvas.style.display = "none";
 
 const humGraf = [];
 const dayGraf = [];
-
+const speedGraf = [];
+const pressureGraf = [];
+const tempGraf = [];
 
 
 const weekday = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
@@ -24,7 +26,7 @@ const fetchApiWeather = () => {
     .then((response) => response.json())
     .then((json) => {
       
-      // dataGraf.push(json)
+      console.log(json)
 
       let weatherContainer = document.createElement("div");
       weatherContainer.classList.add("weather");
@@ -35,6 +37,16 @@ const fetchApiWeather = () => {
 
       weatherContainer.append(cityDiv);
       document.body.insertBefore(weatherContainer, grafCanvas);
+
+      for (let i = 0; i < json.list.length; i++){
+        humGraf.push(json.list[i].main.humidity)
+        dayGraf.push(json.list[i].dt_txt)
+        speedGraf.push(json.list[i].wind.speed)
+        pressureGraf.push(json.list[i].main.pressure)
+        tempGraf.push(json.list[i].main.temp)
+
+
+      }
 
       for (let i = 0; i < json.list.length; i = i + 8) {
         let elementDiv = document.createElement("div");
@@ -59,9 +71,10 @@ const fetchApiWeather = () => {
         elementDiv.append(daysDiv, iconDiv, tempDiv);
         weatherContainer.appendChild(elementDiv);
         
-        humGraf.push(json.list[i].main.humidity)
-        dayGraf.push(json.list[i].dt_txt)
-       
+        // humGraf.push(json.list[i].main.humidity)
+        // dayGraf.push(json.list[i].dt_txt)
+        // speedGraf.push(json.list[i].wind.speed)
+        // pressureGraf.push(json.list[i].main.pressure)
         
     
       }
@@ -92,10 +105,6 @@ const fetchPicture = () => {
 
 
 const grafChart = () => {
-
-  // let date = new Date(dataGraf.dt_txt);
-
-  
   const ctx = document.getElementById("chart").getContext("2d");
   const chart = new Chart(ctx, {
     type: "line",
@@ -113,6 +122,18 @@ const grafChart = () => {
           ],
           borderWidth: 2,
         },
+        {
+          label: 'temperature every 3hours',
+          data: tempGraf,
+          backgroundColor: [
+            "rgba(245, 238, 39, 1)",
+          ],
+          borderColor: [
+            "rgba(245, 238, 39, 1)",
+          ],
+          borderWidth: 2,
+          
+        }
       ],
     },
   });
@@ -124,13 +145,14 @@ buttons.addEventListener("click", () => {
   fetchApiWeather();
   fetchPicture();
   grafCanvas.style.display = "flex";
-  setInterval(grafChart, 200);
+  setTimeout(grafChart, 200);
  
   console.log(humGraf, dayGraf)
   
 });
 
 document.body.addEventListener("DOMcontentloaded", () => {
+  console.log("hello")
 
 })
 
