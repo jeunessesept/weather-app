@@ -111,7 +111,7 @@ const grafChart = () => {
           borderColor: [
             "rgba(255, 99, 132, 1)",
           ],
-          borderWidth: 1,
+          borderWidth: 2,
         },
       ],
     },
@@ -124,9 +124,15 @@ buttons.addEventListener("click", () => {
   fetchApiWeather();
   fetchPicture();
   grafCanvas.style.display = "flex";
+  setInterval(grafChart, 200);
+ 
   console.log(humGraf, dayGraf)
-  grafChart();
+  
 });
+
+document.body.addEventListener("DOMcontentloaded", () => {
+
+})
 
 
 
