@@ -1,93 +1,66 @@
-const inputedCity = document.querySelector(".citysearch");
-const buttons = document.querySelector(".searchbutton");
+const cityForm = document.getElementById("cityform");
 const grafCanvas = document.getElementById("chart");
 grafCanvas.style.display = "none";
 
-const humGraf = [];
-const dayGraf = [];
-const speedGraf = [];
-const pressureGraf = [];
-const tempGraf = [];
-
+data = JSON.parse(localStorage.getItem("city")) || [];
+humGraf = [];
+dayGraf = [];
+tempGraf = [];
 
 const weekday = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
-const fetchApiWeather = () => {
-  let apiKey = "19e1717bb387f246a2c44f869eeb12ff";
+async function fetchCityData() {
+  let city = document.getElementById("city").value;
 
-  const fetchWeather = (city) =>
-    fetch(
-      `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=metric&appid=` +
-        apiKey
-    );
-  let inCity = inputedCity.value;
+  const response = await fetch(
+    `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=metric&appid=19e1717bb387f246a2c44f869eeb12ff`
+  );
 
-  fetchWeather(inCity)
-    .then((response) => response.json())
-    .then((json) => {
-      
-      console.log(json)
+  const data = await response.json();
 
-      let weatherContainer = document.createElement("div");
-      weatherContainer.classList.add("weather");
+  localStorage.setItem("city", JSON.stringify(city));
 
-      let cityDiv = document.createElement("h2");
-      cityDiv.classList.add("city");
-      cityDiv.innerText = "Weather in " + json.city.name;
+  return data;
+}
 
-      weatherContainer.append(cityDiv);
-      document.body.insertBefore(weatherContainer, grafCanvas);
+const addWeatherRow = () => {
+  let weatherContainer = document.createElement("div");
+  weatherContainer.classList.add("weather");
 
-      for (let i = 0; i < json.list.length; i++){
-        humGraf.push(json.list[i].main.humidity)
-        dayGraf.push(json.list[i].dt_txt)
-        speedGraf.push(json.list[i].wind.speed)
-        pressureGraf.push(json.list[i].main.pressure)
-        tempGraf.push(json.list[i].main.temp)
+  let cityDiv = document.createElement("h2");
+  cityDiv.classList.add("city");
+  cityDiv.innerText = "Weather in " + data.city.name;
 
+  weatherContainer.append(cityDiv);
+  document.body.insertBefore(weatherContainer, grafCanvas);
 
-      }
+  for (let i = 0; i < data.list.length; i = i + 8) {
+    let elementDiv = document.createElement("div");
+    elementDiv.classList.add("elementdiv");
 
-      for (let i = 0; i < json.list.length; i = i + 8) {
-        let elementDiv = document.createElement("div");
-        elementDiv.classList.add("elementdiv");
+    let daysDiv = document.createElement("div");
+    daysDiv.classList.add("days");
+    let date = new Date(data.list[i].dt_txt);
+    daysDiv.innerHTML = weekday[date.getDay()];
 
-        let daysDiv = document.createElement("div");
-        daysDiv.classList.add("days");
-        let date = new Date(json.list[i].dt_txt);
-        daysDiv.innerHTML = weekday[date.getDay()];
+    let iconDiv = document.createElement("img");
+    iconDiv.classList.add("icon");
+    iconDiv.src =
+      "http://openweathermap.org/img/wn/" +
+      data.list[0].weather[0].icon +
+      "@2x.png";
 
-        let iconDiv = document.createElement("img");
-        iconDiv.classList.add("icon");
-        iconDiv.src =
-          "http://openweathermap.org/img/wn/" +
-          json.list[0].weather[0].icon +
-          "@2x.png";
+    let tempDiv = document.createElement("div");
+    tempDiv.classList.add("temp");
+    tempDiv.innerText = Math.ceil(data.list[i].main.temp) + "°C";
 
-        let tempDiv = document.createElement("div");
-        tempDiv.classList.add("temp");
-        tempDiv.innerText = Math.ceil(json.list[i].main.temp) + "°C";
-
-        elementDiv.append(daysDiv, iconDiv, tempDiv);
-        weatherContainer.appendChild(elementDiv);
-        
-        // humGraf.push(json.list[i].main.humidity)
-        // dayGraf.push(json.list[i].dt_txt)
-        // speedGraf.push(json.list[i].wind.speed)
-        // pressureGraf.push(json.list[i].main.pressure)
-        
-    
-      }
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+    elementDiv.append(daysDiv, iconDiv, tempDiv);
+    weatherContainer.appendChild(elementDiv);
+  }
 };
 
-
-
 const fetchPicture = () => {
-  let city = inputedCity.value;
+  let city = document.getElementById("city").value;
   fetch(
     "https://api.unsplash.com/search/photos?&client_id=GZ5l_UJgVzdr3-GjchqGDOdlKHW0JonXPYGwpmhZ5T4&query=%22" +
       city
@@ -102,9 +75,13 @@ const fetchPicture = () => {
     });
 };
 
-
-
 const grafChart = () => {
+  for (let i = 0; i < data.list.length; i++) {
+    humGraf.push(data.list[i].main.humidity);
+    dayGraf.push(data.list[i].dt_txt);
+    tempGraf.push(data.list[i].main.temp);
+  }
+
   const ctx = document.getElementById("chart").getContext("2d");
   const chart = new Chart(ctx, {
     type: "line",
@@ -114,51 +91,27 @@ const grafChart = () => {
         {
           label: "% of humidity",
           data: humGraf,
-          backgroundColor: [
-            "rgba(255, 99, 132, 0.2)",
-          ],
-          borderColor: [
-            "rgba(255, 99, 132, 1)",
-          ],
+          backgroundColor: ["rgba(255, 99, 132, 0.2)"],
+          borderColor: ["rgba(255, 99, 132, 1)"],
           borderWidth: 2,
         },
         {
-          label: 'temperature every 3hours',
+          label: "temperature every 3hours",
           data: tempGraf,
-          backgroundColor: [
-            "rgba(245, 238, 39, 1)",
-          ],
-          borderColor: [
-            "rgba(245, 238, 39, 1)",
-          ],
+          backgroundColor: ["rgba(245, 238, 39, 1)"],
+          borderColor: ["rgba(245, 238, 39, 1)"],
           borderWidth: 2,
-          
-        }
+        },
       ],
     },
   });
 };
 
-////////calling 
-
-buttons.addEventListener("click", () => {
-  fetchApiWeather();
-  fetchPicture();
+cityForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
   grafCanvas.style.display = "flex";
-  setTimeout(grafChart, 200);
- 
-  console.log(humGraf, dayGraf)
-  
+  data = await fetchCityData();
+  addWeatherRow();
+  fetchPicture();
+  grafChart();
 });
-
-document.body.addEventListener("DOMcontentloaded", () => {
-  console.log("hello")
-
-})
-
-
-
-
-// function refreshPage() {
-//   window.location.reload();
-// }
