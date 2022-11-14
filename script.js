@@ -2,14 +2,14 @@ const cityForm = document.getElementById("cityform");
 const grafCanvas = document.getElementById("chart");
 grafCanvas.style.display = "none";
 
-data = JSON.parse(localStorage.getItem("city")) || [];
+data = JSON.parse(localStorage.getItem("city")) || []
 humGraf = [];
 dayGraf = [];
 tempGraf = [];
 
 const weekday = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
-async function fetchCityData() {
+const fetchCityData = async () => {
   let city = document.getElementById("city").value;
 
   const response = await fetch(
